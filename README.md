@@ -4,5 +4,5 @@
 # External License 외부 라이선스
 SimpleNosie cpp/h - https://github.com/SRombauts/SimplexNoise
 
-#email 이메일
+# email 이메일
 ddukkijwig@gmail.com
