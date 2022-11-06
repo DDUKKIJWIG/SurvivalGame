@@ -23,14 +23,18 @@
  ****************************************************************************/
 #pragma once
 #include "cocos2d.h"
+
 #define MAPSIZE 1000
+#define TILESIZE 40
+#define SIZE 42
 
 USING_NS_CC;
 
-class Map : public cocos2d::Sprite
+class MapData : public cocos2d::Sprite
 {
 public:
-	Sprite* mapSprite;
+	CREATE_FUNC(MapData);
+	Sprite* mapSprite[TILESIZE / 2][TILESIZE];
 
 };
 
@@ -41,9 +45,13 @@ public:
     virtual bool init();
     CREATE_FUNC(MapLayer);
 
-	Layer* mapLayer[MAPSIZE][MAPSIZE];
+	Layer* mapLayer_[MAPSIZE][MAPSIZE];
+	MapData* mapData_[MAPSIZE][MAPSIZE];
 
-	void creatMap();
+	void creatMap(int posX,int posY);
+
+	int currentX;
+	int currentY;
 
 private:
 	float x;

@@ -44,18 +44,46 @@ bool MapLayer::init()
 	x = visibleSize.width + origin.x;
 	y = visibleSize.height + origin.y;
 
+	//저장된 맵 데이터 없어유
+	currentX = MAPSIZE / 2;
+	currentY = MAPSIZE / 2;
 	
-	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("texture.plist");
+	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Tile.plist");
 	//Sprite::createWithSpriteFrameName("jumpman0001.png");
 
-	creatMap();
+	auto d = Sprite::createWithSpriteFrameName("t_green.png");
+	this->addChild(d);
+
+	creatMap(currentX, currentY);
 
     return true;
 }
 
-void MapLayer::creatMap()
+void MapLayer::creatMap(int posX, int posY)
 {
-	int a = SimplexNoise::noise(15);
+	if (mapLayer_[posX][posY] == NULL)
+	{
+		mapLayer_[posX][posY] = Layer::create();
+		this->addChild(mapLayer_[posX][posY]);
 
-	log("%d",a);
+		if (mapData_[posX][posY] == NULL)
+		{
+			mapData_[posX][posY] = MapData::create();
+			this->addChild(mapData_[posX][posY]);
+
+		}
+	}
+
+	for (int indexX = 0; indexX < TILESIZE / 2; indexX++)
+	{
+		for (int indexY = 0; indexY < TILESIZE; indexY++)
+		{
+			//mapData_[posX][posY]->mapSprite[indexX][indexY] = Sprite::createWithSpriteFrameName("t_green.png");
+			//mapLayer_[posX][posY]->addChild(mapData_[posX][posY]->mapSprite[indexX][indexY]);
+		}
+	}
+
+	log("%d", sizeof(mapData_[posX][posY]));
+	log("%d", sizeof(mapData_[posX][posY]));
+	log("%d", sizeof(mapData_[posX][posY]));
 }
