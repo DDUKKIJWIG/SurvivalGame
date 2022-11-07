@@ -47,12 +47,9 @@ bool MapLayer::init()
 	//저장된 맵 데이터 없어유
 	currentX = MAPSIZE / 2;
 	currentY = MAPSIZE / 2;
-	
-	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Tile.plist");
 	//Sprite::createWithSpriteFrameName("jumpman0001.png");
 
-	auto d = Sprite::createWithSpriteFrameName("t_green.png");
-	this->addChild(d);
+	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Tile.plist", "Tile.png");
 
 	creatMap(currentX, currentY);
 
@@ -78,12 +75,9 @@ void MapLayer::creatMap(int posX, int posY)
 	{
 		for (int indexY = 0; indexY < TILESIZE; indexY++)
 		{
-			//mapData_[posX][posY]->mapSprite[indexX][indexY] = Sprite::createWithSpriteFrameName("t_green.png");
-			//mapLayer_[posX][posY]->addChild(mapData_[posX][posY]->mapSprite[indexX][indexY]);
+			mapData_[posX][posY]->mapSprite[indexX][indexY] = Sprite::createWithSpriteFrameName("Tile1.png");
+			mapData_[posX][posY]->mapSprite[indexX][indexY]->setPosition(Vec2(SIZE * indexX, SIZE * indexY));
+			mapLayer_[posX][posY]->addChild(mapData_[posX][posY]->mapSprite[indexX][indexY]);
 		}
 	}
-
-	log("%d", sizeof(mapData_[posX][posY]));
-	log("%d", sizeof(mapData_[posX][posY]));
-	log("%d", sizeof(mapData_[posX][posY]));
 }

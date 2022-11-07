@@ -43,11 +43,11 @@ bool MainScene::init()
 	{
 		cocos2d::Director::getInstance()->setClearColor(Color4F::GRAY);
 
-		auto Player_Layer_ = PlayerLayer::create();
-		this->addChild(Player_Layer_);
-
 		auto Map_Layer_ = MapLayer::create();
 		this->addChild(Map_Layer_);
+
+		auto Player_Layer_ = PlayerLayer::create();
+		this->addChild(Player_Layer_);
 
 		return true;
 	}

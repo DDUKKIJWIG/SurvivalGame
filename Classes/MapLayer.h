@@ -26,7 +26,7 @@
 
 #define MAPSIZE 1000
 #define TILESIZE 40
-#define SIZE 42
+#define SIZE 30
 
 USING_NS_CC;
 
