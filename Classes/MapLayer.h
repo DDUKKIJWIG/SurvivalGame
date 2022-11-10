@@ -45,15 +45,41 @@ public:
     virtual bool init();
     CREATE_FUNC(MapLayer);
 
+	virtual void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
+	virtual void onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
+
+	virtual void onTouchesBegan(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event);
+	virtual void onTouchesCancelled(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event);
+	virtual void onTouchesEnded(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event);
+	virtual void onTouchesMoved(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event);
+
+	Node* mapNode;
 	Layer* mapLayer_[MAPSIZE][MAPSIZE];
 	MapData* mapData_[MAPSIZE][MAPSIZE];
 
-	void creatMap(int posX,int posY);
+	void creatMap(int posX, int posY);///¸Ê »ý¼º
+	void setMapPos();///¸Ê À§Ä¡ Á¶Á¤
+
+	bool Left;
+	bool Right;
+	bool Up;
+	bool Down;
 
 	int currentX;
 	int currentY;
 
+
 private:
 	float x;
 	float y;
+
+	Sprite* Player;
+	Sprite* ArrowButton[4];
+
+	Animate* animate1;
+	Animate* animate2;
+
+	void Player_Walk();
+	void Player_Stand();
+	void Player_Move(float dt);
 };
