@@ -25,8 +25,8 @@
 #include "cocos2d.h"
 
 #define MAPSIZE 1000
-#define TILESIZE 40
-#define SIZE 30
+#define TILESIZE 40//한 타일 크기
+#define SIZE 30 //이미지 크기
 
 USING_NS_CC;
 
@@ -57,8 +57,8 @@ public:
 	Layer* mapLayer_[MAPSIZE][MAPSIZE];
 	MapData* mapData_[MAPSIZE][MAPSIZE];
 
-	void creatMap(int posX, int posY);///맵 생성
-	void setMapPos();///맵 위치 조정
+	void creatMap(int posX, int posY);//맵 생성
+	void setMapPos();//맵 위치 조정
 
 	bool Left;
 	bool Right;
@@ -68,6 +68,8 @@ public:
 	int currentX;
 	int currentY;
 
+	float posX;
+	float posY;
 
 private:
 	float x;
@@ -81,5 +83,5 @@ private:
 
 	void Player_Walk();
 	void Player_Stand();
-	void Player_Move(float dt);
+	void Background(float dt);
 };

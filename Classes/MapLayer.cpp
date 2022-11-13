@@ -50,6 +50,10 @@ bool MapLayer::init()
 	//저장된 맵 데이터 없어유
 	currentX = MAPSIZE / 2;
 	currentY = MAPSIZE / 2;
+
+	posX = 0;
+	posY = 0;
+
 	//Sprite::createWithSpriteFrameName("jumpman0001.png");
 
 	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Tile.plist", "Tile.png");
@@ -64,7 +68,7 @@ bool MapLayer::init()
 
 	Player = Sprite::create("Player.png");
 	Player->setPosition(Vec2(x / 2, y / 2));
-	this->addChild(Player);
+	this->addChild(Player, 100);
 
 	ArrowButton[0] = Sprite::create("ArrowButton.png");
 	ArrowButton[1] = Sprite::create("ArrowButton.png");
@@ -148,7 +152,7 @@ bool MapLayer::init()
 	creatMap(currentX - 1, currentY + 1);
 	creatMap(currentX - 1, currentY - 1);
 
-	this->schedule(schedule_selector(MapLayer::Player_Move));
+	this->schedule(schedule_selector(MapLayer::Background));
 
     return true;
 }
@@ -157,6 +161,8 @@ void MapLayer::creatMap(int posX, int posY)
 {
 	if (mapLayer_[posX][posY] == NULL)
 	{
+		setMapPos();
+
 		mapLayer_[posX][posY] = Layer::create();
 		mapNode->addChild(mapLayer_[posX][posY]);
 
@@ -165,37 +171,35 @@ void MapLayer::creatMap(int posX, int posY)
 			mapData_[posX][posY] = MapData::create();
 			this->addChild(mapData_[posX][posY]);
 
+			for (int indexX = 0; indexX < TILESIZE / 2; indexX++)
+			{
+				for (int indexY = 0; indexY < TILESIZE; indexY++)
+				{
+					float a = SimplexNoise::noise(indexX * 0.1, indexY * 0.1);
+
+					if (a < 0.5)
+					{
+						mapData_[posX][posY]->mapSprite[indexX][indexY] = Sprite::createWithSpriteFrameName("Tile1.png");
+						if (indexX == 0 || indexY == 0)
+							mapData_[posX][posY]->mapSprite[indexX][indexY]->setColor(Color3B::BLACK);
+						if (indexX == TILESIZE / 2 - 1 || indexY == TILESIZE - 1)
+							mapData_[posX][posY]->mapSprite[indexX][indexY]->setColor(Color3B::BLACK);
+
+						mapData_[posX][posY]->mapSprite[indexX][indexY]->setPosition(Vec2(SIZE * indexX, SIZE * indexY));
+						mapLayer_[posX][posY]->addChild(mapData_[posX][posY]->mapSprite[indexX][indexY]);
+
+					}
+					else
+					{
+						mapData_[posX][posY]->mapSprite[indexX][indexY] = Sprite::createWithSpriteFrameName("Tile2.png");
+						mapData_[posX][posY]->mapSprite[indexX][indexY]->setPosition(Vec2(SIZE * indexX, SIZE * indexY));
+						mapLayer_[posX][posY]->addChild(mapData_[posX][posY]->mapSprite[indexX][indexY]);
+					}
+				}
+			}
 		}
 	}
 
-	for (int indexX = 0; indexX < TILESIZE / 2; indexX++)
-	{
-		for (int indexY = 0; indexY < TILESIZE; indexY++)
-		{
-			float a = SimplexNoise::noise(indexX * 0.1, indexY * 0.1);
-			
-			if (a < 0.5)
-			{
-				mapData_[posX][posY]->mapSprite[indexX][indexY] = Sprite::createWithSpriteFrameName("Tile1.png");
-				if (indexX == 0 || indexY == 0)
-					mapData_[posX][posY]->mapSprite[indexX][indexY]->setColor(Color3B::BLACK);
-				if (indexX == TILESIZE / 2 - 1 || indexY == TILESIZE - 1)
-					mapData_[posX][posY]->mapSprite[indexX][indexY]->setColor(Color3B::BLACK);
-
-				mapData_[posX][posY]->mapSprite[indexX][indexY]->setPosition(Vec2(SIZE * indexX, SIZE * indexY));
-				mapLayer_[posX][posY]->addChild(mapData_[posX][posY]->mapSprite[indexX][indexY]);
-				
-			}
-			else 
-			{
-				mapData_[posX][posY]->mapSprite[indexX][indexY] = Sprite::createWithSpriteFrameName("Tile2.png");
-				mapData_[posX][posY]->mapSprite[indexX][indexY]->setPosition(Vec2(SIZE * indexX, SIZE * indexY));
-				mapLayer_[posX][posY]->addChild(mapData_[posX][posY]->mapSprite[indexX][indexY]);
-			}
-		}
-	}
-
-	setMapPos();
 }
 
 void MapLayer::setMapPos()
@@ -209,24 +213,24 @@ void MapLayer::setMapPos()
 	if (mapLayer_[currentX - 1][currentY - 1] != NULL)//- -
 		mapLayer_[currentX - 1][currentY - 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() - SIZE * TILESIZE / 2,
 															mapLayer_[currentX][currentY]->getPositionY() - SIZE * TILESIZE ));
-	if (mapLayer_[currentX - 1][currentY] != NULL)//- +
-		mapLayer_[currentX - 1][currentY]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() - SIZE * TILESIZE / 2,
+	if (mapLayer_[currentX - 1][currentY + 1] != NULL)//- +
+		mapLayer_[currentX - 1][currentY + 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() - SIZE * TILESIZE / 2,
 															mapLayer_[currentX][currentY]->getPositionY() + SIZE * TILESIZE));
-	if (mapLayer_[currentX - 1][currentY] != NULL)//+ -
-		mapLayer_[currentX - 1][currentY]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() + SIZE * TILESIZE / 2,
-															mapLayer_[currentX][currentY]->getPositionY() - SIZE * TILESIZE));
-	if (mapLayer_[currentX - 1][currentY] != NULL)//0 -
-		mapLayer_[currentX - 1][currentY]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX(),
-															mapLayer_[currentX][currentY]->getPositionY() - SIZE * TILESIZE));
-	if (mapLayer_[currentX - 1][currentY] != NULL)//+ +
-		mapLayer_[currentX - 1][currentY]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() + SIZE * TILESIZE / 2,
+	if (mapLayer_[currentX][currentY + 1] != NULL)//0 +
+		mapLayer_[currentX][currentY + 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX(),
 															mapLayer_[currentX][currentY]->getPositionY() + SIZE * TILESIZE));
-	if (mapLayer_[currentX - 1][currentY] != NULL)//+ -
-		mapLayer_[currentX - 1][currentY]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() + SIZE * TILESIZE / 2,
+	if (mapLayer_[currentX][currentY - 1] != NULL)//0 -
+		mapLayer_[currentX][currentY - 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX(),
+															mapLayer_[currentX][currentY]->getPositionY() - SIZE * TILESIZE));
+	if (mapLayer_[currentX + 1][currentY + 1] != NULL)//+ +
+		mapLayer_[currentX + 1][currentY + 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() + SIZE * TILESIZE / 2,
+															mapLayer_[currentX][currentY]->getPositionY() + SIZE * TILESIZE));
+	if (mapLayer_[currentX + 1][currentY - 1] != NULL)//+ -
+		mapLayer_[currentX + 1][currentY - 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() + SIZE * TILESIZE / 2,
 															mapLayer_[currentX][currentY]->getPositionY() - SIZE * TILESIZE));
 }
 
-void MapLayer::Player_Move(float dt)
+void MapLayer::Background(float dt)
 {
 	auto moveStepX = 3;
 	auto moveStepY = 3;
@@ -247,6 +251,9 @@ void MapLayer::Player_Move(float dt)
 		moveStepY = 3;
 		mapNode->setPosition(mapNode->getPositionX(), mapNode->getPositionY() + moveStepY);
 	}
+
+	log("%f cccc ", mapNode->getPositionX() );
+	log("%f gggg", TILESIZE * currentX);
 }
 
 void MapLayer::Player_Walk()
