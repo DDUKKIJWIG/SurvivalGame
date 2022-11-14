@@ -100,13 +100,13 @@ bool MapLayer::init()
 	ArrowButton[2]->setPosition(Vec2(x / 2, 260));
 	ArrowButton[3]->setPosition(Vec2(x / 2, 130));
 
-	//for COMPUTER
+	//컴퓨터
 	auto K_listner = EventListenerKeyboard::create();
 	K_listner->onKeyPressed = CC_CALLBACK_2(MapLayer::onKeyPressed, this);
 	K_listner->onKeyReleased = CC_CALLBACK_2(MapLayer::onKeyReleased, this);
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(K_listner, this);
 
-	//for MOBILE
+	//모바일
 	auto listener = EventListenerTouchAllAtOnce::create();
 	listener->onTouchesBegan =
 		CC_CALLBACK_2(MapLayer::onTouchesBegan, this);
@@ -143,14 +143,16 @@ bool MapLayer::init()
 
 	*/
 	creatMap(currentX, currentY);
-	creatMap(currentX + 1, currentY);
-	creatMap(currentX - 1, currentY);
 	creatMap(currentX, currentY + 1);
 	creatMap(currentX, currentY - 1);
+	creatMap(currentX + 1, currentY);
 	creatMap(currentX + 1, currentY + 1);
 	creatMap(currentX + 1, currentY - 1);
+	creatMap(currentX - 1, currentY);
 	creatMap(currentX - 1, currentY + 1);
 	creatMap(currentX - 1, currentY - 1);
+
+	setMapPos();
 
 	this->schedule(schedule_selector(MapLayer::Background));
 
@@ -161,8 +163,6 @@ void MapLayer::creatMap(int posX, int posY)
 {
 	if (mapLayer_[posX][posY] == NULL)
 	{
-		setMapPos();
-
 		mapLayer_[posX][posY] = Layer::create();
 		mapNode->addChild(mapLayer_[posX][posY]);
 
@@ -180,9 +180,8 @@ void MapLayer::creatMap(int posX, int posY)
 					if (a < 0.5)
 					{
 						mapData_[posX][posY]->mapSprite[indexX][indexY] = Sprite::createWithSpriteFrameName("Tile1.png");
-						if (indexX == 0 || indexY == 0)
-							mapData_[posX][posY]->mapSprite[indexX][indexY]->setColor(Color3B::BLACK);
-						if (indexX == TILESIZE / 2 - 1 || indexY == TILESIZE - 1)
+				
+						if (indexX == TILESIZE / 2 - 1 || indexY == TILESIZE - 1 || indexX == 0 || indexY == 0)
 							mapData_[posX][posY]->mapSprite[indexX][indexY]->setColor(Color3B::BLACK);
 
 						mapData_[posX][posY]->mapSprite[indexX][indexY]->setPosition(Vec2(SIZE * indexX, SIZE * indexY));
@@ -202,20 +201,26 @@ void MapLayer::creatMap(int posX, int posY)
 
 }
 
+void MapLayer::removeMap(int posX, int posY)
+{
+
+}
+
 void MapLayer::setMapPos()
 {
+	
 	if(mapLayer_[currentX - 1][currentY] != NULL)//- 0
-	mapLayer_[currentX - 1][currentY]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() - SIZE * TILESIZE / 2,
-														mapLayer_[currentX][currentY]->getPositionY()));
+		mapLayer_[currentX - 1][currentY]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() - SIZE * TILESIZE / 2,
+													mapLayer_[currentX][currentY]->getPositionY()));
 	if (mapLayer_[currentX + 1][currentY] != NULL)//+ 0
 		mapLayer_[currentX + 1][currentY]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() + SIZE * TILESIZE / 2,
-															mapLayer_[currentX][currentY]->getPositionY()));
+															mapLayer_[currentX][currentY]->getPositionY()));						
 	if (mapLayer_[currentX - 1][currentY - 1] != NULL)//- -
 		mapLayer_[currentX - 1][currentY - 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() - SIZE * TILESIZE / 2,
-															mapLayer_[currentX][currentY]->getPositionY() - SIZE * TILESIZE ));
+																mapLayer_[currentX][currentY]->getPositionY() - SIZE * TILESIZE ));
 	if (mapLayer_[currentX - 1][currentY + 1] != NULL)//- +
 		mapLayer_[currentX - 1][currentY + 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() - SIZE * TILESIZE / 2,
-															mapLayer_[currentX][currentY]->getPositionY() + SIZE * TILESIZE));
+																mapLayer_[currentX][currentY]->getPositionY() + SIZE * TILESIZE));
 	if (mapLayer_[currentX][currentY + 1] != NULL)//0 +
 		mapLayer_[currentX][currentY + 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX(),
 															mapLayer_[currentX][currentY]->getPositionY() + SIZE * TILESIZE));
@@ -224,10 +229,11 @@ void MapLayer::setMapPos()
 															mapLayer_[currentX][currentY]->getPositionY() - SIZE * TILESIZE));
 	if (mapLayer_[currentX + 1][currentY + 1] != NULL)//+ +
 		mapLayer_[currentX + 1][currentY + 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() + SIZE * TILESIZE / 2,
-															mapLayer_[currentX][currentY]->getPositionY() + SIZE * TILESIZE));
+																mapLayer_[currentX][currentY]->getPositionY() + SIZE * TILESIZE));
 	if (mapLayer_[currentX + 1][currentY - 1] != NULL)//+ -
 		mapLayer_[currentX + 1][currentY - 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() + SIZE * TILESIZE / 2,
-															mapLayer_[currentX][currentY]->getPositionY() - SIZE * TILESIZE));
+																mapLayer_[currentX][currentY]->getPositionY() - SIZE * TILESIZE));
+																
 }
 
 void MapLayer::Background(float dt)
@@ -240,7 +246,7 @@ void MapLayer::Background(float dt)
 		mapNode->setPosition(mapNode->getPositionX() + moveStepX, mapNode->getPositionY());
 	}
 	if (Right) {
-		moveStepX =- 3;
+		moveStepX = -3;
 		mapNode->setPosition(mapNode->getPositionX() + moveStepX, mapNode->getPositionY());
 	}
 	if (Up) {
@@ -252,8 +258,28 @@ void MapLayer::Background(float dt)
 		mapNode->setPosition(mapNode->getPositionX(), mapNode->getPositionY() + moveStepY);
 	}
 
-	log("%f cccc ", mapNode->getPositionX() );
-	log("%f gggg", TILESIZE * currentX);
+	//log("%f", mapNode->getPositionX());
+
+	if (mapNode->getPositionX() > (SIZE * TILESIZE / 4 ) + TILESIZE * posX)// 왼쪽
+	{
+		log("LEFT");
+
+	}
+	if (mapNode->getPositionX() < (-(SIZE * TILESIZE / 4) - TILESIZE) - TILESIZE * posX)// 오른쪽
+	{
+		log("RIGHT");
+
+	}
+	if (mapNode->getPositionY() > (SIZE * TILESIZE / 2 ) -(2 * TILESIZE) - TILESIZE * posY)// 아래쪽
+	{
+		log("DOWN");
+
+	}
+	if (mapNode->getPositionY() < (-(SIZE * TILESIZE / 2) - TILESIZE) -(2 * TILESIZE) + TILESIZE * posY)// 위쪽
+	{
+		log("UP");
+
+	}
 }
 
 void MapLayer::Player_Walk()

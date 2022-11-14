@@ -24,7 +24,7 @@
 #pragma once
 #include "cocos2d.h"
 
-#define MAPSIZE 1000
+#define MAPSIZE 1000//맵 크기
 #define TILESIZE 40//한 타일 크기
 #define SIZE 30 //이미지 크기
 
@@ -58,6 +58,7 @@ public:
 	MapData* mapData_[MAPSIZE][MAPSIZE];
 
 	void creatMap(int posX, int posY);//맵 생성
+	void removeMap(int posX, int posY);//맵 삭제
 	void setMapPos();//맵 위치 조정
 
 	bool Left;
@@ -68,15 +69,15 @@ public:
 	int currentX;
 	int currentY;
 
-	float posX;
-	float posY;
+	int posX;
+	int posY;
 
 private:
 	float x;
 	float y;
 
 	Sprite* Player;
-	Sprite* ArrowButton[4];
+	Sprite* ArrowButton[4];//마지막 한 칸은 남겨두겠소
 
 	Animate* animate1;
 	Animate* animate2;
