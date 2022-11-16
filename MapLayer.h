@@ -59,7 +59,7 @@ public:
 
 	void createMap(int posX, int posY);//¸Ê »ý¼º
 	void removeMap(int posX, int posY);//¸Ê »èÁ¦
-	void setMapPos();//¸Ê À§Ä¡ Á¶Á¤
+	void setMapPos(int posX, int posY);//¸Ê À§Ä¡ Á¶Á¤
 
 	bool Left;
 	bool Right;
