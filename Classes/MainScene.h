@@ -33,4 +33,7 @@ public:
     virtual bool init();
 
     CREATE_FUNC(MainScene);
+private:
+	void Roading();
+	void Road_Resources(cocos2d::Texture2D* texture);
 };

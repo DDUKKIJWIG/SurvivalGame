@@ -54,10 +54,6 @@ bool MapLayer::init()
 	posX = 0;
 	posY = 0;
 
-	//Sprite::createWithSpriteFrameName("jumpman0001.png");
-
-	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Tile.plist", "Tile.png");
-
 	Left = false;
 	Right = false;
 	Up = false;
@@ -143,32 +139,16 @@ bool MapLayer::init()
 
 	*/
 	createMap(currentX, currentY);
-	setMapPos(currentX, currentY);
-
 	createMap(currentX, currentY + 1);
-	setMapPos(currentX, currentY + 1);
-
 	createMap(currentX, currentY - 1);
-	setMapPos(currentX, currentY - 1);
-
 	createMap(currentX + 1, currentY);
-	setMapPos(currentX + 1, currentY);
-
 	createMap(currentX + 1, currentY + 1);
-	setMapPos(currentX + 1, currentY + 1);
-
 	createMap(currentX + 1, currentY - 1);
-	setMapPos(currentX + 1, currentY - 1);
-
 	createMap(currentX - 1, currentY);
-	setMapPos(currentX - 1, currentY);
-
 	createMap(currentX - 1, currentY + 1);
-	setMapPos(currentX - 1, currentY + 1);
-
 	createMap(currentX - 1, currentY - 1);
-	setMapPos(currentX - 1, currentY - 1);
 
+	setMapPos();
 
 	this->schedule(schedule_selector(MapLayer::Background));
 
@@ -177,104 +157,77 @@ bool MapLayer::init()
 
 void MapLayer::createMap(int posX, int posY)
 {
-	if (mapLayer_[posX][posY] == NULL)
-	{
-		mapLayer_[posX][posY] = Layer::create();
-		mapNode->addChild(mapLayer_[posX][posY]);
-	}
+	mapLayer_[posX][posY] = Layer::create();
+	mapNode->addChild(mapLayer_[posX][posY]);
+	
+	mapData_[posX][posY] = MapData::create();
+	this->addChild(mapData_[posX][posY]);
 
-	if (mapData_[posX][posY] == NULL)
+#pragma omp parallel private for
+	for (int indexX = 0; indexX < TILESIZE / 2; indexX++)
 	{
-		mapData_[posX][posY] = MapData::create();
-		this->addChild(mapData_[posX][posY]);
-
-		for (int indexX = 0; indexX < TILESIZE / 2; indexX++)
+		for (int indexY = 0; indexY < TILESIZE; indexY++)
 		{
-			for (int indexY = 0; indexY < TILESIZE; indexY++)
-			{
-				float a = SimplexNoise::noise(indexX * 0.1, indexY * 0.1);
+			auto a = SimplexNoise::noise(indexX * 0.1, indexY * 0.1);
 
-				if (a < 0.5)
-				{
-					mapData_[posX][posY]->mapSprite[indexX][indexY] = Sprite::createWithSpriteFrameName("Tile1.png");
-				
-					if (indexX == TILESIZE / 2 - 1 || indexY == TILESIZE - 1 || indexX == 0 || indexY == 0)
-						mapData_[posX][posY]->mapSprite[indexX][indexY]->setColor(Color3B::BLACK);
+			if (a < 0.5)
+				mapData_[posX][posY]->mapSprite[indexX][indexY] = Sprite::createWithSpriteFrameName("Tile1.png");
+			else
+				mapData_[posX][posY]->mapSprite[indexX][indexY] = Sprite::createWithSpriteFrameName("Tile2.png");
+			
+			if (indexX == TILESIZE / 2 - 1 || indexY == TILESIZE - 1 || indexX == 0 || indexY == 0)
+				mapData_[posX][posY]->mapSprite[indexX][indexY]->setColor(Color3B::BLACK);
 
-					mapData_[posX][posY]->mapSprite[indexX][indexY]->setPosition(Vec2(SIZE * indexX, SIZE * indexY));
-					mapLayer_[posX][posY]->addChild(mapData_[posX][posY]->mapSprite[indexX][indexY]);
-
-				}
-				else
-				{
-					mapData_[posX][posY]->mapSprite[indexX][indexY] = Sprite::createWithSpriteFrameName("Tile2.png");
-					mapData_[posX][posY]->mapSprite[indexX][indexY]->setPosition(Vec2(SIZE * indexX, SIZE * indexY));
-					mapLayer_[posX][posY]->addChild(mapData_[posX][posY]->mapSprite[indexX][indexY]);
-				}
-			}
+			mapData_[posX][posY]->mapSprite[indexX][indexY]->setPosition(Vec2(SIZE * indexX, SIZE * indexY));
+			mapLayer_[posX][posY]->addChild(mapData_[posX][posY]->mapSprite[indexX][indexY]);
 		}
 	}
 	
-
 }
 
 void MapLayer::removeMap(int posX, int posY)
 {
-	if (mapLayer_[posX][posY] != NULL)
-		mapNode->removeChild(mapLayer_[posX][posY]);
-	if(mapData_[posX][posY] != NULL)
+	if (mapData_[posX][posY] != NULL) 
 		this->removeChild(mapData_[posX][posY]);
-}
 
-void MapLayer::setMapPos(int posX, int posY)
-{
 	if (mapLayer_[posX][posY] != NULL)
 	{
-		if(posX == currentX)
-
+		mapLayer_[posX][posY]->removeAllChildren();
+		mapNode->removeChild(mapLayer_[posX][posY]);
 	}
 
+	Director::getInstance()->getTextureCache()->removeUnusedTextures();
+}
 
-
-	/*	mapLayer_[currentX - 1][currentY]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() - SIZE * TILESIZE / 2,
+void MapLayer::setMapPos()
+{
+	if (mapLayer_[currentX][currentY] != NULL)
+	{
+		if (mapLayer_[currentX - 1][currentY] != NULL)//- 0
+			mapLayer_[currentX - 1][currentY]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() - SIZE * TILESIZE / 2,
 				mapLayer_[currentX][currentY]->getPositionY()));
-		}
 		if (mapLayer_[currentX + 1][currentY] != NULL)//+ 0
-		{
 			mapLayer_[currentX + 1][currentY]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() + SIZE * TILESIZE / 2,
 				mapLayer_[currentX][currentY]->getPositionY()));
-		}
 		if (mapLayer_[currentX - 1][currentY - 1] != NULL)//- -
-		{
 			mapLayer_[currentX - 1][currentY - 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() - SIZE * TILESIZE / 2,
 				mapLayer_[currentX][currentY]->getPositionY() - SIZE * TILESIZE));
-		}
 		if (mapLayer_[currentX - 1][currentY + 1] != NULL)//- +
-		{
 			mapLayer_[currentX - 1][currentY + 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() - SIZE * TILESIZE / 2,
 				mapLayer_[currentX][currentY]->getPositionY() + SIZE * TILESIZE));
-		}
 		if (mapLayer_[currentX][currentY + 1] != NULL)//0 +
-		{
 			mapLayer_[currentX][currentY + 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX(),
 				mapLayer_[currentX][currentY]->getPositionY() + SIZE * TILESIZE));
-		}
 		if (mapLayer_[currentX][currentY - 1] != NULL)//0 -
-		{
 			mapLayer_[currentX][currentY - 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX(),
 				mapLayer_[currentX][currentY]->getPositionY() - SIZE * TILESIZE));
-		}
 		if (mapLayer_[currentX + 1][currentY + 1] != NULL)//+ +
-		{
 			mapLayer_[currentX + 1][currentY + 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() + SIZE * TILESIZE / 2,
 				mapLayer_[currentX][currentY]->getPositionY() + SIZE * TILESIZE));
-		}
 		if (mapLayer_[currentX + 1][currentY - 1] != NULL)//+ -
-		{
 			mapLayer_[currentX + 1][currentY - 1]->setPosition(Vec2(mapLayer_[currentX][currentY]->getPositionX() + SIZE * TILESIZE / 2,
 				mapLayer_[currentX][currentY]->getPositionY() - SIZE * TILESIZE));
-		}
-	}*/
+	}
 }
 
 void MapLayer::Background(float dt)
@@ -301,35 +254,68 @@ void MapLayer::Background(float dt)
 
 	if (int(mapNode->getPositionX()) > (SIZE * TILESIZE / 4 + TILESIZE) + SIZE * TILESIZE / 2 * posX)// 왼쪽
 	{
-		createMap(currentX - 2, currentY);
-		removeMap(currentX + 1, currentY);
-
+		log("LEFT");
 		posX += 1;
 		currentX -= 1;
-		//setMapPos();
 
-		log("LEFT");
+		removeMap(currentX + 2, currentY);
+		removeMap(currentX + 2, currentY + 1);
+		removeMap(currentX + 2, currentY - 1);
+
+		createMap(currentX - 1, currentY);
+		createMap(currentX - 1, currentY + 1);
+		createMap(currentX - 1, currentY - 1);
+
+		setMapPos();
 	}
 	else if (int(mapNode->getPositionX()) < (-SIZE * TILESIZE / 4 - TILESIZE) + SIZE * TILESIZE / 2 * posX )// 오른쪽
 	{
-		createMap(currentX + 2, currentY);
-		removeMap(currentX - 1, currentY);
-
+		log("RIGHT");
 		posX -= 1;
 		currentX += 1;
-		//setMapPos();
 
-		log("RIGHT");
+		removeMap(currentX - 2, currentY);
+		removeMap(currentX - 2, currentY + 1);
+		removeMap(currentX - 2, currentY - 1);
+
+		createMap(currentX + 1, currentY);
+		createMap(currentX + 1, currentY + 1);
+		createMap(currentX + 1, currentY - 1);
+
+		setMapPos();
 	}
-	else if (mapNode->getPositionY() > (SIZE * TILESIZE / 2 ) -(2 * TILESIZE) - TILESIZE * posY)// 아래쪽
+	else if (mapNode->getPositionY() > SIZE * TILESIZE / 2 -(2 * TILESIZE) + SIZE * TILESIZE * posY)// 아래쪽
 	{
 		log("DOWN");
+		posY += 1;
+		currentY -= 1;
+
+		removeMap(currentX, currentY + 2);
+		removeMap(currentX + 1, currentY + 2);
+		removeMap(currentX - 1, currentY + 2);
+
+		createMap(currentX, currentY - 1);
+		createMap(currentX + 1, currentY - 1);
+		createMap(currentX - 1, currentY - 1);
+
+		setMapPos();
 
 	}
-	else if (mapNode->getPositionY() < (-(SIZE * TILESIZE / 2) - TILESIZE) -(2 * TILESIZE) + TILESIZE * posY)// 위쪽
+	else if (mapNode->getPositionY() < -(SIZE * TILESIZE / 2) -(4 * TILESIZE) + SIZE * TILESIZE * posY)// 위쪽
 	{
 		log("UP");
+		posY -= 1;
+		currentY += 1;
 
+		removeMap(currentX, currentY - 2);
+		removeMap(currentX + 1, currentY - 2);
+		removeMap(currentX - 1, currentY - 2);
+
+		createMap(currentX, currentY + 1);
+		createMap(currentX + 1, currentY + 1);
+		createMap(currentX - 1, currentY + 1);
+
+		setMapPos();
 	}
 }
 

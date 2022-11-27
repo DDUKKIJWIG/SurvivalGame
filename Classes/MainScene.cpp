@@ -41,6 +41,8 @@ bool MainScene::init()
     }
 	else
 	{
+		Roading();
+
 		cocos2d::Director::getInstance()->setClearColor(Color4F::GRAY);
 
 		auto Map_Layer_ = MapLayer::create();
@@ -51,4 +53,16 @@ bool MainScene::init()
 
 		return true;
 	}
+}
+
+void MainScene::Roading()
+{
+	Director::getInstance()->getTextureCache()->
+		addImageAsync("Tile.png", CC_CALLBACK_1(MainScene::Road_Resources, this));
+	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Tile.plist", "Tile.png");
+}
+
+void MainScene::Road_Resources(cocos2d::Texture2D* texture)
+{
+
 }
