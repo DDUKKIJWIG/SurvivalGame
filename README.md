@@ -5,7 +5,7 @@
 SimpleNosie cpp/h - https://github.com/SRombauts/SimplexNoise
 
 # ++ 
-중학생때 만든거여서 코드가 매우 더러울 수 있음, cocos2d 엔진을 이용하여 만듬
+중학생때 만든거여서 코드가 지저분할 수 있습니다, cocos2d 엔진을 이용하여 만들었습니다.
 This game made when I was a middle school student, so the code may be very dirty. It was made using the cocos2d engine.
 
 # email 이메일
